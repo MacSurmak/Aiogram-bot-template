@@ -1,4 +1,4 @@
-LEXICON_RU: dict[str, str] = {
+LEXICON: dict[str, str] = {
     'forward': '>>',
     'backward': '<<',
     '/start': '<b>Привет, читатель!</b>\n\nЭто бот, в котором '
