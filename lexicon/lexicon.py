@@ -23,31 +23,6 @@ LEXICON: dict[str, str] = {
     'reply': 'Я бы с радостью с тобой пообщался, если бы умел :('
 }
 
-LEXICON_EN: dict[str, str] = {
-    'forward': '>>',
-    'backward': '<<',
-    '/start': "<b>Hello reader!</b>\n\nThis is a "
-              "bot where you can read Ray Bradbury's The Martian "
-              "Chronicles\n\nTo see a list of available commands, type "
-              "/help",
-    '/help': '<b>Это бот-читалка</b>\n\nДоступные команды:\n\n/beginning - '
-             'перейти в начало книги\n/continue - продолжить '
-             'чтение\n/bookmarks - посмотреть список закладок\n/help - '
-             'справка по работе бота\n\nЧтобы сохранить закладку - '
-             'нажмите на кнопку с номером страницы\n\n<b>Приятного чтения!</b>',
-    '/bookmarks': '<b>Это список ваших закладок:</b>',
-    'edit_bookmarks': '<b>Edit bookmarks</b>',
-    'edit_bookmarks_button': '❌ РЕДАКТИРОВАТЬ',
-    'del': '❌',
-    'cancel': 'ОТМЕНИТЬ',
-    'no_bookmarks': 'У вас пока нет ни одной закладки.\n\nЧтобы '
-                    'добавить страницу в закладки - во время чтения '
-                    'книги нажмите на кнопку с номером этой '
-                    'страницы\n\n/continue - продолжить чтение',
-    'cancel_text': '/continue - продолжить чтение',
-    'reply': 'I would be happy to talk to you if I could :('
-}
-
 LEXICON_COMMANDS: dict[str, str] = {
     '/beginning': 'В начало книги',
     '/continue': 'Продолжить чтение',
