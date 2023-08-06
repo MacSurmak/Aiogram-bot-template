@@ -1,5 +1,4 @@
 import asyncio
-import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage, Redis
@@ -11,19 +10,11 @@ from handlers import commands, other_handlers
 from keyboards.main_menu import set_main_menu
 from middlewares import DbSessionMiddleware
 from database import Base
-
-logger = logging.getLogger(__name__)
+from services import setup_logger
 
 
 async def main() -> None:
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(filename)s:%(lineno)d #%(levelname)-8s '
-               '[%(asctime)s] - %(name)s - %(message)s')
-
-    logger.info('Starting bot')
-
-    engine = create_async_engine(url=config.db.url, echo=True)
+    engine = create_async_engine(url=config.db.url, echo=False)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     session_maker = async_sessionmaker(engine, expire_on_commit=False)
@@ -48,4 +39,5 @@ async def main() -> None:
 
 
 if __name__ == '__main__':
+    setup_logger("INFO")
     asyncio.run(main())
