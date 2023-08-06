@@ -2,9 +2,15 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
-from config_data.config import Config, load_config
-from handlers import other_handlers, user_handlers
+from aiogram.fsm.storage.redis import RedisStorage, Redis
+from aiogram.utils.callback_answer import CallbackAnswerMiddleware
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+
+from config_data import config
+from handlers import commands, other_handlers
 from keyboards.main_menu import set_main_menu
+from middlewares import DbSessionMiddleware
+from database import Base
 
 logger = logging.getLogger(__name__)
 
@@ -17,16 +23,25 @@ async def main() -> None:
 
     logger.info('Starting bot')
 
-    config: Config = load_config('.env')
+    engine = create_async_engine(url=config.db.url, echo=True)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
-    bot: Bot = Bot(token=config.tg_bot.token,
+    redis: Redis = Redis(host=config.redis.host)
+    storage: RedisStorage = RedisStorage(redis=redis)
+
+    bot: Bot = Bot(token=config.bot.token,
                    parse_mode='HTML')
-    dp: Dispatcher = Dispatcher()
+
+    dp: Dispatcher = Dispatcher(storage=storage)
+    dp.update.middleware(DbSessionMiddleware(session_pool=session_maker))
+    dp.callback_query.middleware(CallbackAnswerMiddleware())
+
+    dp.include_router(commands.router)
+    dp.include_router(other_handlers.router)
 
     await set_main_menu(bot)
-
-    dp.include_router(user_handlers.router)
-    dp.include_router(other_handlers.router)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)

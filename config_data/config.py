@@ -1,14 +1,11 @@
 from dataclasses import dataclass
 from environs import Env
+from sqlalchemy.engine.url import URL
 
 
 @dataclass
 class DatabaseConfig:
-    database: str         # Название базы данных
-    db_host: str          # URL-адрес базы данных
-    db_port: str          # Порт для подключения к базе данных
-    db_user: str          # Username пользователя базы данных
-    db_password: str      # Пароль к базе данных
+    url: URL
 
 
 @dataclass
@@ -18,9 +15,16 @@ class TgBot:
 
 
 @dataclass
+class RedisConfig:
+    host: str
+    port: str
+
+
+@dataclass
 class Config:
-    tg_bot: TgBot
+    bot: TgBot
     db: DatabaseConfig
+    redis: RedisConfig
 
 
 def load_config(path: str | None) -> Config:
@@ -28,10 +32,16 @@ def load_config(path: str | None) -> Config:
     env: Env = Env()
     env.read_env(path)
 
-    return Config(tg_bot=TgBot(token=env('BOT_TOKEN'),
-                               admin_ids=list(map(int, env.list('ADMIN_IDS')))),
-                  db=DatabaseConfig(database=env('DATABASE'),
-                                    db_host=env('DB_HOST'),
-                                    db_port=env('DB_PORT'),
-                                    db_user=env('DB_USER'),
-                                    db_password=env('DB_PASSWORD')))
+    return Config(bot=TgBot(token=env('BOT_TOKEN'),
+                            admin_ids=list(map(int, env.list('ADMIN_IDS')))),
+                  db=DatabaseConfig(url=URL.create(
+                                        drivername='postgresql+asyncpg',
+                                        host=env('DB_HOST'),
+                                        port=env('DB_PORT'),
+                                        username=env('DB_USER'),
+                                        password=env('DB_PASSWORD'),
+                                        database=env('DATABASE')
+                                    )),
+                  redis=RedisConfig(host=env('REDIS_HOST'),
+                                    port=env('REDIS_PORT')))
+
