@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from config_data import config
 from handlers import commands, other_handlers
 from keyboards.main_menu import set_main_menu
-from middlewares import DbSessionMiddleware
+from middlewares import DbSessionMiddleware, GetLangMiddleware
 from database import Base
 from services import setup_logger
 
@@ -19,7 +19,7 @@ async def main() -> None:
         await conn.run_sync(Base.metadata.create_all)
     session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
-    redis: Redis = Redis(host=config.redis.host)
+    redis: Redis = Redis(host=config.redis.host, port=config.redis.port, password=config.redis.password)
     storage: RedisStorage = RedisStorage(redis=redis)
 
     bot: Bot = Bot(token=config.bot.token,
@@ -27,6 +27,7 @@ async def main() -> None:
 
     dp: Dispatcher = Dispatcher(storage=storage)
     dp.update.middleware(DbSessionMiddleware(session_pool=session_maker))
+    dp.update.middleware(GetLangMiddleware())
     dp.callback_query.middleware(CallbackAnswerMiddleware())
 
     dp.include_router(commands.router)
