@@ -6,8 +6,8 @@ from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from config_data import config
-from handlers import commands, other_handlers
-from keyboards.main_menu import set_main_menu
+from handlers import commands, user, admin
+from keyboards.commands_menu import set_commands_menu
 from middlewares import DbSessionMiddleware, GetLangMiddleware
 from database import Base
 from services import setup_logger
@@ -31,9 +31,10 @@ async def main() -> None:
     dp.callback_query.middleware(CallbackAnswerMiddleware())
 
     dp.include_router(commands.router)
-    dp.include_router(other_handlers.router)
+    dp.include_router(user.router)
+    dp.include_router(admin.router)
 
-    await set_main_menu(bot)
+    await set_commands_menu(bot)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)

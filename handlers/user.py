@@ -1,8 +1,9 @@
 from aiogram import Router
 from aiogram.types import Message
+
 from lexicon.lexicon import lexicon
 
-router: Router = Router(name="other-handlers-router")
+router: Router = Router(name="user-handlers-router")
 
 
 @router.message()

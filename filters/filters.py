@@ -8,8 +8,12 @@ from config_data import config
 
 
 class IsAdmin(BaseFilter):
-    async def __call__(self, message: Message) -> bool:
-        return message.from_user.id in config.bot.admin_ids
+    async def __call__(self, message: Message = None, callback: CallbackQuery = None) -> bool:
+        if message:
+            return message.from_user.id in config.bot.admin_ids
+        elif callback:
+            print("call")
+            return callback.from_user.id in config.bot.admin_ids
 
 
 class IsRegistered(BaseFilter):
