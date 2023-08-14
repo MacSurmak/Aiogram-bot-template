@@ -1,7 +1,7 @@
 from aiogram import Router
 from aiogram.types import Message, CallbackQuery
 from aiogram import F
-from aiogram.filters import StateFilter, or_f
+from aiogram.filters import StateFilter
 from aiogram.filters.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 
@@ -70,10 +70,12 @@ async def process_room(message: Message, lang: str, state: FSMContext):
     :param state: FSM state
     """
     if 500 > int(message.text) > 200:
-        await message.answer(lexicon(lang, 'enter-surname'))
+        await message.answer(text=lexicon(lang, 'enter-surname'),
+                             reply_markup=admin_cancel(lang))
         await state.set_state(FSMKeygen.fill_surname)
     else:
-        await message.answer(lexicon(lang, 'wrong-number'))
+        await message.answer(text=lexicon(lang, 'wrong-number'),
+                             reply_markup=admin_cancel(lang))
 
 
 @router.message(StateFilter(FSMKeygen.fill_room))
@@ -84,4 +86,29 @@ async def process_room_wrong(message: Message, lang: str, state: FSMContext):
     :param lang: user's language code
     :param state: FSM state
     """
-    await message.answer(lexicon(lang, 'room-not-digit'))
+    await message.answer(text=lexicon(lang, 'room-not-digit'),
+                         reply_markup=admin_cancel(lang))
+
+
+@router.message(StateFilter(FSMKeygen.fill_surname), F.text.isalpha())
+async def process_surname(message: Message, lang: str, state: FSMContext):
+    """
+    Handles surname
+    :param message: Telegram message
+    :param lang: user's language code
+    :param state: FSM state
+    """
+    await message.answer(text=lexicon(lang, 'enter-name'),
+                         reply_markup=admin_cancel(lang))
+
+
+@router.message(StateFilter(FSMKeygen.fill_surname))
+async def process_surname_wrong(message: Message, lang: str, state: FSMContext):
+    """
+    Handles surname
+    :param message: Telegram message
+    :param lang: user's language code
+    :param state: FSM state
+    """
+    await message.answer(text=lexicon(lang, 'surname-wrong'),
+                         reply_markup=admin_cancel(lang))
