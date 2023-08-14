@@ -5,10 +5,18 @@ from lexicon.lexicon import lexicon
 
 
 def admin_menu(lang: str) -> InlineKeyboardMarkup:
-    buttons = ['keygen', 'exit']
+    buttons = ['_keygen', '_exit']
     kb_builder: InlineKeyboardBuilder = InlineKeyboardBuilder()
     for button in buttons:
         kb_builder.row(InlineKeyboardButton(
             text=lexicon(lang, button),
             callback_data=button))
+    return kb_builder.as_markup()
+
+
+def admin_cancel(lang: str) -> InlineKeyboardMarkup:
+    kb_builder: InlineKeyboardBuilder = InlineKeyboardBuilder()
+    kb_builder.row(InlineKeyboardButton(
+        text=lexicon(lang, '_cancel'),
+        callback_data='_cancel'))
     return kb_builder.as_markup()

@@ -16,7 +16,7 @@ router: Router = Router(name='commands-router')
 async def process_start_command(message: Message, session: AsyncSession, lang: str):
     """
     Handles /start command and adds user into database
-    :param message: Telegram message with "/start" text
+    :param message: Telegram message
     :param session: DB connection session
     :param lang: user's language code
     """
@@ -27,8 +27,8 @@ async def process_start_command(message: Message, session: AsyncSession, lang: s
 @router.message(CommandStart())
 async def process_start_command_registered(message: Message, lang: str):
     """
-    Handles /start command
-    :param message: Telegram message with "/start" text
+    Handles /start command if user is already registered
+    :param message: Telegram message
     :param lang: user's language code
     """
     await message.answer(text=lexicon(lang, '/start-registered'))
@@ -38,17 +38,18 @@ async def process_start_command_registered(message: Message, lang: str):
 async def process_help_command(message: Message, lang: str):
     """
     Handles /help command
-    :param message: Telegram message with "/help" text
+    :param message: Telegram message
     :param lang: user's language code
     """
     await message.answer(text=lexicon(lang, '/help'))
 
 
 @router.message(Command("admin"), IsAdmin())
-async def process_help_command(message: Message, lang: str):
+async def process_admin_command(message: Message, lang: str):
     """
-    Handles /admin command
-    :param message: Telegram message with "/help" text
+    Handles /admin command if user is in admin list and
+    replies with an admin markup
+    :param message: Telegram message
     :param lang: user's language code
     """
     await message.answer(text=lexicon(lang, '/admin'),

@@ -31,8 +31,8 @@ async def main() -> None:
     dp.callback_query.middleware(CallbackAnswerMiddleware())
 
     dp.include_router(commands.router)
-    dp.include_router(user.router)
     dp.include_router(admin.router)
+    dp.include_router(user.router)
 
     await set_commands_menu(bot)
 
