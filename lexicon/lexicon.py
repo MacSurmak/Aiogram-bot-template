@@ -48,3 +48,4 @@ def lexicon(lang: str, key: str) -> str:
         return LEXICON['ru'][key]
     else:
         return LEXICON['ru'][key]
+
