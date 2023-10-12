@@ -42,15 +42,3 @@ async def process_help_command(message: Message, lang: str):
     :param lang: user's language code
     """
     await message.answer(text=lexicon(lang, '/help'))
-
-
-@router.message(Command("admin"), IsAdmin())
-async def process_admin_command(message: Message, lang: str):
-    """
-    Handles /admin command if user is in admin list and
-    replies with an admin markup
-    :param message: Telegram message
-    :param lang: user's language code
-    """
-    await message.answer(text=lexicon(lang, '/admin'),
-                         reply_markup=admin_menu(lang))

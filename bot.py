@@ -10,7 +10,7 @@ from handlers import commands, user, admin
 from keyboards.commands_menu import set_commands_menu
 from middlewares import DbSessionMiddleware, GetLangMiddleware
 from database import Base
-from services import setup_logger
+from services import setup_logger, check_mailbox
 
 
 async def main() -> None:
@@ -43,3 +43,5 @@ async def main() -> None:
 if __name__ == '__main__':
     setup_logger("INFO")
     asyncio.run(main())
+    loop = asyncio.get_event_loop()
+

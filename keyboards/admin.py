@@ -14,8 +14,12 @@ def admin_menu(lang: str) -> InlineKeyboardMarkup:
     return kb_builder.as_markup()
 
 
-def admin_cancel(lang: str) -> InlineKeyboardMarkup:
+def admin_cancel(lang: str, *args) -> InlineKeyboardMarkup:
     kb_builder: InlineKeyboardBuilder = InlineKeyboardBuilder()
+    for button in args:
+        kb_builder.row(InlineKeyboardButton(
+            text=lexicon(lang, button),
+            callback_data=button))
     kb_builder.row(InlineKeyboardButton(
         text=lexicon(lang, '_cancel'),
         callback_data='_cancel'))
