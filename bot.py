@@ -10,7 +10,7 @@ from handlers import commands, user, admin
 from keyboards.commands_menu import set_commands_menu
 from middlewares import DbSessionMiddleware, GetLangMiddleware
 from database import Base
-from services import setup_logger, check_mailbox
+from services import setup_logger, wait_for_new_message, schedule
 
 
 async def main() -> None:
@@ -33,15 +33,24 @@ async def main() -> None:
     dp.include_router(commands.router)
     dp.include_router(admin.router)
     dp.include_router(user.router)
+    dp.include_router(schedule.router)
 
     await set_commands_menu(bot)
 
     await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
+
+    polling_task = asyncio.create_task(dp.start_polling(bot))
+    mail_parser_task = asyncio.create_task(wait_for_new_message(
+        host=config.imap.host,
+        user=config.imap.user,
+        password=config.imap.password,
+        bot=bot,
+        session_maker=session_maker))
+
+    await polling_task
+    await mail_parser_task
 
 
 if __name__ == '__main__':
     setup_logger("INFO")
     asyncio.run(main())
-    loop = asyncio.get_event_loop()
-

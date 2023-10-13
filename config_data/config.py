@@ -22,10 +22,18 @@ class RedisConfig:
 
 
 @dataclass
+class ImapConfig:
+    host: str
+    user: str
+    password: str
+
+
+@dataclass
 class Config:
     bot: TgBot
     db: DatabaseConfig
     redis: RedisConfig
+    imap: ImapConfig
 
 
 def load_config(path: str | None) -> Config:
@@ -45,5 +53,8 @@ def load_config(path: str | None) -> Config:
                                     )),
                   redis=RedisConfig(host=env('REDIS_HOST'),
                                     port=env('REDIS_PORT'),
-                                    password=env('REDIS_PASSWORD')))
+                                    password=env('REDIS_PASSWORD')),
+                  imap=ImapConfig(host=env('IMAP_HOST'),
+                                  user=env('IMAP_USER'),
+                                  password=env('IMAP_PASSWORD')))
 

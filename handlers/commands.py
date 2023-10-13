@@ -3,9 +3,10 @@ from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, CallbackQuery
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from imaplib import IMAP4_SSL
 
 from lexicon.lexicon import lexicon
-from database import User, add_user
+from database import User, add_user, get_id
 from filters.filters import IsRegistered, IsAdmin
 from keyboards.admin import admin_menu
 
@@ -20,8 +21,12 @@ async def process_start_command(message: Message, session: AsyncSession, lang: s
     :param session: DB connection session
     :param lang: user's language code
     """
+    await get_id(session=session)
     await message.answer(text=lexicon(lang, '/start'))
-    await add_user(session, message.from_user.id)
+    await add_user(session,
+                   user_id=message.from_user.id,
+                   username=message.from_user.username,
+                   name=f"{message.from_user.first_name} {message.from_user.last_name}")
 
 
 @router.message(CommandStart())
@@ -42,3 +47,14 @@ async def process_help_command(message: Message, lang: str):
     :param lang: user's language code
     """
     await message.answer(text=lexicon(lang, '/help'))
+
+
+@router.message(Command("list"))
+async def get_user_list(message: Message, session: AsyncSession, lang: str):
+    """
+    Handles /start command and adds user into database
+    :param message: Telegram message
+    :param session: DB connection session
+    :param lang: user's language code
+    """
+    await get_id(session=session)
