@@ -33,32 +33,6 @@ async def process_start_command_registered(message: Message, lang: str):
     :param message: Telegram message
     :param lang: user's language code
     """
-    await message.answer(text="""*От: Макар Сурков*
- <group.317.2022@mail.ru>
-
-*Тема: Re[2]: <No subject>*
------------------------------------
-Виымтыжатцаж
-
-С уважением,
-студенты 317 группы биологического факультета МГУ
-
-
-
-Friday, 13 October 2023 at 16:42 +03:00 from group.317.2022  <group.317.2022@mail.ru>:
->Kfbskevej
->
->С уважением,
->студенты 317 группы биологического факультета МГУ
->
->
->
->Friday, 13 October 2023 at 16:23 +03:00 from group.317.2022  < group.317.2022@mail.ru >:
->>
->>
->>С уважением,
->>студенты 317 группы биологического факультета МГУ
->>""", parse_mode="MarkdownV2")
     await message.answer(text=lexicon(lang, '/start-registered'))
 
 

@@ -27,17 +27,17 @@ LEXICON: dict[str, dict[str, str]] = {
 
         # User messages
         'reply-other':      'Я тебя не понимаю',
-        'send-mail':        '*От: {sender_name}*\n'
+        'send-mail':        '<b>От: {sender_name}</b>\n'
                             '\t{sender_mail}\n\n'
-                            '*Тема: {header}*\n'
-                            '-----------------------------------'
+                            '<b>{header}</b>\n'
+                            '{underline}'
                             '{text}',
 
         # Markups
         '_keygen':      'Сгенерировать ключ',
         '_exit':        'Выход',
         '_cancel':      'Отмена',
-        '_yes':        'Да',
+        '_yes':         'Да',
     },
     'en': {
         """
