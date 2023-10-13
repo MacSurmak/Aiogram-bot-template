@@ -27,6 +27,11 @@ LEXICON: dict[str, dict[str, str]] = {
 
         # User messages
         'reply-other':      'Я тебя не понимаю',
+        'send-mail':        '*От: {sender_name}*\n'
+                            '\t{sender_mail}\n\n'
+                            '*Тема: {header}*\n'
+                            '-----------------------------------'
+                            '{text}',
 
         # Markups
         '_keygen':      'Сгенерировать ключ',

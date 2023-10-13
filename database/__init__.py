@@ -5,6 +5,6 @@ from .crud import add_user, get_id
 __all__ = [
     "Base",
     "User",
-    "Key",
-    "add_user"
+    "add_user",
+    "get_id"
 ]

@@ -36,7 +36,6 @@ async def main() -> None:
     dp.include_router(schedule.router)
 
     await set_commands_menu(bot)
-
     await bot.delete_webhook(drop_pending_updates=True)
 
     polling_task = asyncio.create_task(dp.start_polling(bot))
@@ -52,5 +51,5 @@ async def main() -> None:
 
 
 if __name__ == '__main__':
-    setup_logger("INFO")
+    setup_logger("DEBUG")
     asyncio.run(main())
