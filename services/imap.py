@@ -61,7 +61,7 @@ async def wait_for_new_message(host, user, password, bot: Bot, session_maker: as
     await imap_client.select()
 
     while True:
-        print((await imap_client.uid('fetch', '1:*', 'FLAGS')))
+        # print((await imap_client.uid('fetch', '1:*', 'FLAGS')))
 
         idle = await imap_client.idle_start(timeout=60)
         mail = await imap_client.wait_server_push()
