@@ -4,18 +4,18 @@ import email
 from email.header import decode_header
 import base64
 import codecs
-import re
-from aiogram.exceptions import TelegramForbiddenError
+import os
 
 from aiogram import Bot
+from aiogram.exceptions import TelegramForbiddenError
+from aiogram.types import FSInputFile, InputMediaDocument
 
-from config_data import config
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from database import Base, get_id
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from database import get_id
 from lexicon.lexicon import lexicon
 
 
-async def message_processing(msg) -> str:
+async def message_processing(msg) -> (str, list[str]):
     # get sender
     try:
         sender_name = decode_header(msg["From"])[0][0].decode()
@@ -50,7 +50,23 @@ async def message_processing(msg) -> str:
                                                 header=header,
                                                 underline=(len(header)) * "--",
                                                 text=text)
-    return message
+
+    # get attachments
+    attachments = []
+    for part in msg.walk():
+        if part.get_content_disposition() == 'attachment':
+            filename = part.get_filename()
+            decoded_filename = decode_header(filename)[0][0].decode()
+            att_path = os.path.join("Attachments", decoded_filename)
+            open(att_path, 'wb').write(part.get_payload(decode=True))
+            att_input = FSInputFile(att_path)
+            if len(message) < 1024 and not attachments:
+                att_input = InputMediaDocument(media=att_input, caption=message)
+                message = ""
+            else:
+                att_input = InputMediaDocument(media=att_input)
+            attachments.append(att_input)
+    return message, attachments
 
 
 async def wait_for_new_message(host, user, password, bot: Bot, session_maker: async_sessionmaker):
@@ -77,14 +93,22 @@ async def wait_for_new_message(host, user, password, bot: Bot, session_maker: as
             # fetch mail
             res, msg = await imap_client.fetch(mail_id, '(RFC822)')
             msg = email.message_from_bytes(msg[1])
-            message = await message_processing(msg)
+            message, attachments = await message_processing(msg)
 
             async with session_maker() as session:
                 ids = await get_id(session)
 
             for chat_id in ids:
                 try:
-                    await bot.send_message(chat_id=chat_id,
-                                           text=message)
-                except TelegramForbiddenError:
+                    if not message:
+                        result = await bot.send_media_group(chat_id=chat_id,
+                                                            media=attachments)
+                    else:
+                        await bot.send_message(chat_id=chat_id,
+                                               text=message)
+                        result = await bot.send_media_group(chat_id=chat_id,
+                                                            media=attachments)
+                    pass
+                except Exception as e:
+                    print(e)
                     pass
