@@ -56,35 +56,35 @@ async def message_processing(msg) -> str:
 async def wait_for_new_message(host, user, password, bot: Bot, session_maker: async_sessionmaker):
     imap_client = aioimaplib.IMAP4_SSL(host=host)
     await imap_client.wait_hello_from_server()
+
     await imap_client.login(user, password)
     await imap_client.select()
 
-    mail_id = None
     while True:
+        print((await imap_client.uid('fetch', '1:*', 'FLAGS')))
+
         idle = await imap_client.idle_start(timeout=60)
+        mail = await imap_client.wait_server_push()
 
         async with session_maker() as session:
             ids = await get_id(session)
 
-        mail = await imap_client.wait_server_push()
         mail = mail[0].decode("utf-8")
+
         if 'EXISTS' in mail:
             mail_id = str(mail).split()[0]
-            imap_client.idle_done()
-            break
 
-    if mail_id is not None:
+            # fetch mail
+            res, msg = await imap_client.fetch(mail_id, '(RFC822)')
+            msg = email.message_from_bytes(msg[1])
+            message = await message_processing(msg)
 
-        # fetch mail
-        res, msg = await imap_client.fetch(mail_id, '(RFC822)')
-        msg = email.message_from_bytes(msg[1])
-        message = await message_processing(msg)
+            for chat_id in ids:
+                try:
+                    await bot.send_message(chat_id=chat_id,
+                                           text=message)
+                except TelegramForbiddenError:
+                    pass
 
-        for chat_id in ids:
-            try:
-                await bot.send_message(chat_id=chat_id,
-                                       text=message)
-            except TelegramForbiddenError:
-                pass
-
-    await asyncio.wait_for(idle, 30)
+        imap_client.idle_done()
+        await asyncio.wait_for(idle, 30)
