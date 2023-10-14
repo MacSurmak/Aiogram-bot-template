@@ -53,6 +53,10 @@ async def message_processing(msg) -> (str, list[str]):
 
     # get attachments
     attachments = []
+    count = 0
+    for part in msg.walk():
+        if part.get_content_disposition() == 'attachment':
+            count += 1
     for part in msg.walk():
         if part.get_content_disposition() == 'attachment':
             filename = part.get_filename()
@@ -60,7 +64,7 @@ async def message_processing(msg) -> (str, list[str]):
             att_path = os.path.join("Attachments", decoded_filename)
             open(att_path, 'wb').write(part.get_payload(decode=True))
             att_input = FSInputFile(att_path)
-            if len(message) < 1024 and not attachments:
+            if len(message) < 1024 and (count - len(attachments)) == 1:
                 att_input = InputMediaDocument(media=att_input, caption=message)
                 message = ""
             else:
