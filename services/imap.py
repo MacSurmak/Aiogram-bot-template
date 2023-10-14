@@ -32,7 +32,7 @@ async def message_processing(msg) -> str:
     if header is not None:
         header = header.replace("<", "&lt;").replace(">", "&gt;")
     else:
-        header = "Без темы"
+        header = "&lt;No subject&gt;"
 
     # get text
     text = ""
@@ -61,23 +61,26 @@ async def wait_for_new_message(host, user, password, bot: Bot, session_maker: as
     await imap_client.select()
 
     while True:
-        # print((await imap_client.uid('fetch', '1:*', 'FLAGS')))
 
         idle = await imap_client.idle_start(timeout=60)
+
         mail = await imap_client.wait_server_push()
-
-        async with session_maker() as session:
-            ids = await get_id(session)
-
         mail = mail[0].decode("utf-8")
+
+        imap_client.idle_done()
+        await asyncio.wait_for(idle, 30)
 
         if 'EXISTS' in mail:
             mail_id = str(mail).split()[0]
+            print(mail_id)
 
             # fetch mail
             res, msg = await imap_client.fetch(mail_id, '(RFC822)')
             msg = email.message_from_bytes(msg[1])
             message = await message_processing(msg)
+
+            async with session_maker() as session:
+                ids = await get_id(session)
 
             for chat_id in ids:
                 try:
@@ -85,6 +88,3 @@ async def wait_for_new_message(host, user, password, bot: Bot, session_maker: as
                                            text=message)
                 except TelegramForbiddenError:
                     pass
-
-        imap_client.idle_done()
-        await asyncio.wait_for(idle, 30)
